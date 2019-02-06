@@ -23,22 +23,70 @@
   ],
   "plans": [
     {
-      "id": "6067d022-fc1c-43e3-a7d0-22fc1c73e304",
+      "id": "1a568869-ddf4-476b-9688-69ddf4b76b82",
+      "name": "Free",
+      "description": "A pass-through plan",
+      "validation": "AUTO",
+      "security": "KEY_LESS",
+      "securityDefinition": "{}",
+      "type": "API",
+      "status": "PUBLISHED",
+      "apis": [
+        "ae8c799e-3573-4659-8c79-9e3573f65982"
+      ],
+      "order": 1,
+      "characteristics": [],
+      "created_at": 1549487717443,
+      "updated_at": 1549487720781,
+      "published_at": 1549487720781,
+      "paths": {
+        "/": [
+          {
+            "methods": [
+              "CONNECT",
+              "DELETE",
+              "GET",
+              "HEAD",
+              "OPTIONS",
+              "PATCH",
+              "POST",
+              "PUT",
+              "TRACE"
+            ],
+            "resource-filtering": {
+              "whitelist": [
+                {
+                  "methods": [
+                    "GET"
+                  ],
+                  "pattern": "/**"
+                }
+              ],
+              "blacklist": []
+            },
+            "enabled": true
+          }
+        ]
+      },
+      "excluded_groups": [],
+      "comment_required": false
+    },
+    {
+      "id": "b62c896b-98b4-4554-ac89-6b98b4a55423",
       "name": "OAuth Plan",
       "description": "A secured plan",
-      "validation": "MANUAL",
+      "validation": "AUTO",
       "security": "OAUTH2",
       "securityDefinition": "{\"extractPayload\":false,\"checkRequiredScopes\":false,\"modeStrict\":false,\"propagateAuthHeader\":false,\"requiredScopes\":[],\"oauthResource\":\"echoam\"}",
       "type": "API",
       "status": "PUBLISHED",
       "apis": [
-        "447d90ca-c3a1-4a22-bd90-cac3a17a2269"
+        "ae8c799e-3573-4659-8c79-9e3573f65982"
       ],
-      "order": 1,
+      "order": 2,
       "characteristics": [],
-      "created_at": 1549485415038,
-      "updated_at": 1549485652079,
-      "published_at": 1549485417763,
+      "created_at": 1549487448050,
+      "updated_at": 1549489964700,
       "paths": {
         "/": []
       },
