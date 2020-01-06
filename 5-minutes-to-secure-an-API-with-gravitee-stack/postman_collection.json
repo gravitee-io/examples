@@ -1,0 +1,1569 @@
+{
+	"info": {
+		"_postman_id": "0c2d2191-f4a8-4213-b896-7bd418c397d9",
+		"name": "Secure Pet Store API",
+		"description": "Declares the Swagger Pet Store API on Gravitee APIM with a restricted keyless plan and an unlocked Oauth2 plan.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login to Gravitee AM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "336b7c04-91e0-4ab3-a18f-5876aee4c436",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"    ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"AM_ADMIN_TOKEN\", \"Bearer \" + jsonData.access_token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "36f95cb4-c90e-4609-bb18-2d4267ca8f67",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{AM_AUTHORIZATION_ADMIN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_AM_ADMIN_URL}}/token",
+					"host": [
+						"{{GRAVITEEIO_AM_ADMIN_URL}}"
+					],
+					"path": [
+						"token"
+					]
+				},
+				"description": "This step is a technical step allowing to generate an access token used to create..."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Gravitee Showcase security domain",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ce48037-f680-499c-a633-9cf455c9596b",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    ",
+							"    pm.expect(pm.response.code).to.be.oneOf([201,202]);",
+							"    ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"SECURITY_DOMAIN_ID\", jsonData.id);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b21d1f17-41a5-47fa-9aaf-a964be64a82f",
+						"exec": [
+							"pm.environment.set(\"SECURITY_DOMAIN_NAME\", \"GraviteeShowCases-{{RANDOM_STRING}}\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AM_ADMIN_TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{SECURITY_DOMAIN_NAME}}\",\n  \"description\": \"Security domain used for Gravitee's showcases\"\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_AM_MANAGEMENT_URL}}/domains",
+					"host": [
+						"{{GRAVITEEIO_AM_MANAGEMENT_URL}}"
+					],
+					"path": [
+						"domains"
+					]
+				},
+				"description": "One of the objectives of the showcase is to expose a thrid party api through Gravitee Api Management (aka APIM) and create a Oauth2 secured plan. To achieve that, we'll need an OAuth2 authorization server.\n\nFor all of our showcase we will create a security domain GraviteeShowCases-{{RANDOM}}."
+			},
+			"response": []
+		},
+		{
+			"name": "Create writer scope in Gravitee Showcase security domain",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ce48037-f680-499c-a633-9cf455c9596b",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    ",
+							"    pm.expect(pm.response.code).to.be.oneOf([201]);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "2ff82a76-703a-4d91-a54d-13c5a4442dd8",
+						"exec": [
+							"pm.environment.set(\"WRITER_SCOPE\", \"writer-{{RANDOM_STRING}}\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AM_ADMIN_TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"key\":\"{{WRITER_SCOPE}}\",\n   \"name\":\"{{WRITER_SCOPE}}\",\n   \"description\":\"{{WRITER_SCOPE}} scope\",\n   \"discovery\":true\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_AM_MANAGEMENT_URL}}/domains/{{SECURITY_DOMAIN_ID}}/scopes/",
+					"host": [
+						"{{GRAVITEEIO_AM_MANAGEMENT_URL}}"
+					],
+					"path": [
+						"domains",
+						"{{SECURITY_DOMAIN_ID}}",
+						"scopes",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Enable Gravitee Showcase security domain",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ce48037-f680-499c-a633-9cf455c9596b",
+						"exec": [
+							"pm.test(\"Successful PATCH request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AM_ADMIN_TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"enabled\":true\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_AM_MANAGEMENT_URL}}/domains/{{SECURITY_DOMAIN_ID}}",
+					"host": [
+						"{{GRAVITEEIO_AM_MANAGEMENT_URL}}"
+					],
+					"path": [
+						"domains",
+						"{{SECURITY_DOMAIN_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Gravitee APIM application in AM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ce48037-f680-499c-a633-9cf455c9596b",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+							"    ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"AM_GATEWAY_APIM_APPLICATION_ID\", jsonData.id);",
+							"    pm.environment.set(\"AM_GATEWAY_APIM_CLIENT_ID\", jsonData.settings.oauth.clientId);",
+							"    pm.environment.set(\"AM_GATEWAY_APIM_CLIENT_SECRET\", jsonData.settings.oauth.clientSecret);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "7925eeec-227e-4233-93fe-591ca3808b2b",
+						"exec": [
+							"pm.environment.set(\"AM_GATEWAY_APIM_APPLICATION_NAME\", \"Gravitee APIM {{RANDOM_STRING}}\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AM_ADMIN_TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"name\":\"{{AM_GATEWAY_APIM_APPLICATION_NAME}}\",\n   \"type\":\"SERVICE\",\n   \"description\":\"Gravitee Api Management\",\n   \"redirectUris\":null\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_AM_MANAGEMENT_URL}}/domains/{{SECURITY_DOMAIN_ID}}/applications",
+					"host": [
+						"{{GRAVITEEIO_AM_MANAGEMENT_URL}}"
+					],
+					"path": [
+						"domains",
+						"{{SECURITY_DOMAIN_ID}}",
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create consumer application in AM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ce48037-f680-499c-a633-9cf455c9596b",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201,202]);",
+							"    ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"AM_CONSUMER_APP_APPLICATION_ID\", jsonData.id);",
+							"    pm.environment.set(\"AM_CONSUMER_APP_CLIENT_ID\", jsonData.settings.oauth.clientId);",
+							"    pm.environment.set(\"AM_CONSUMER_APP_CLIENT_SECRET\", jsonData.settings.oauth.clientSecret);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "2222e7db-4dc9-4d05-8eaf-b4e34190e7b4",
+						"exec": [
+							"pm.environment.set(\"AM_CONSUMER_APP_APPLICATION_NAME\", \"Consumer application {{RANDOM_STRING}}\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AM_ADMIN_TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"name\":\"{{AM_CONSUMER_APP_APPLICATION_NAME}}\",\n   \"type\":\"SERVICE\",\n   \"description\":\"A simple consumer application\",\n   \"redirectUris\":null\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_AM_MANAGEMENT_URL}}/domains/{{SECURITY_DOMAIN_ID}}/applications",
+					"host": [
+						"{{GRAVITEEIO_AM_MANAGEMENT_URL}}"
+					],
+					"path": [
+						"domains",
+						"{{SECURITY_DOMAIN_ID}}",
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Configure consumer application in AM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ce48037-f680-499c-a633-9cf455c9596b",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AM_ADMIN_TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"settings\":{\n      \"oauth\":{\n         \"responseTypes\":[\n\n         ],\n         \"grantTypes\":[\n            \"client_credentials\"\n         ],\n         \"clientName\":\"Consumer application\",\n         \"requireAuthTime\":false,\n         \"enhanceScopesWithUserPermissions\":false,\n         \"accessTokenValiditySeconds\":7200,\n         \"refreshTokenValiditySeconds\":14400,\n         \"idTokenValiditySeconds\":14400,\n         \"redirectUris\":[\n\n         ],\n         \"scopes\":[\n            \"{{WRITER_SCOPE}}\"\n         ],\n         \"tokenCustomClaims\":[\n\n         ],\n         \"scopeApprovals\":{\n\n         }\n      }\n   }\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_AM_MANAGEMENT_URL}}/domains/{{SECURITY_DOMAIN_ID}}/applications/{{AM_CONSUMER_APP_APPLICATION_ID}}",
+					"host": [
+						"{{GRAVITEEIO_AM_MANAGEMENT_URL}}"
+					],
+					"path": [
+						"domains",
+						"{{SECURITY_DOMAIN_ID}}",
+						"applications",
+						"{{AM_CONSUMER_APP_APPLICATION_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import Pet Store API definition",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"    ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"API_ID\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							"pm.environment.set(\"API_PATH\", \"/petstore-\" + pm.variables.get(\"RANDOM_STRING\"));",
+							"pm.environment.set(\"API_NAME\", \"Swagger Petstore \" + pm.variables.get(\"RANDOM_STRING\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"name\":\"{{API_NAME}}\",\n   \"version\":\"1.0.3\",\n   \"description\":\"Swagger Petstore API\",\n   \"visibility\":\"PUBLIC\",\n   \"paths\":{\n      \"/\":[\n         {\n            \"methods\":[\n               \"DELETE\",\n               \"POST\",\n               \"PUT\"\n            ],\n            \"rbac\":{\n               \"strict\":false,\n               \"roles\":[\n                  \"{{WRITER_SCOPE}}\"\n               ]\n            },\n            \"description\":\"Restrict to writers only\",\n            \"enabled\":true\n         }\n      ]\n   },\n   \"resources\":[\n      {\n         \"configuration\":{\n            \"version\":\"V2_X\",\n            \"userClaim\":\"sub\",\n            \"serverURL\":\"{{GRAVITEEIO_AM_GATEWAY_URL}}\",\n            \"securityDomain\":\"{{SECURITY_DOMAIN_ID}}\",\n            \"clientId\":\"{{AM_GATEWAY_APIM_CLIENT_ID}}\",\n            \"clientSecret\":\"{{AM_GATEWAY_APIM_CLIENT_SECRET}}\"\n         },\n         \"enabled\":true,\n         \"name\":\"Gravitee AM\",\n         \"type\":\"oauth2-am-resource\"\n      }\n   ],\n   \"members\":[\n      {\n         \"source\":\"memory\",\n         \"sourceId\":\"api1\",\n         \"role\":\"PRIMARY_OWNER\"\n      }\n   ],\n   \"pages\":[\n\n   ],\n   \"plans\":[\n\n   ],\n   \"path_mappings\":[\n      \"/\"\n   ],\n   \"proxy\":{\n      \"virtual_hosts\":[\n         {\n            \"path\":\"{{API_PATH}}\"\n         }\n      ],\n      \"strip_context_path\":false,\n      \"preserve_host\":false,\n      \"groups\":[\n         {\n            \"name\":\"default-group\",\n            \"endpoints\":[\n               {\n                  \"name\":\"default\",\n                  \"target\":\"https://petstore.swagger.io/v2\",\n                  \"weight\":1,\n                  \"backup\":false,\n                  \"type\":\"HTTP\",\n                  \"http\":{\n                     \"connectTimeout\":5000,\n                     \"idleTimeout\":60000,\n                     \"keepAlive\":true,\n                     \"readTimeout\":10000,\n                     \"pipelining\":false,\n                     \"maxConcurrentConnections\":100,\n                     \"useCompression\":true,\n                     \"followRedirects\":false,\n                     \"encodeURI\":false\n                  }\n               }\n            ],\n            \"load_balancing\":{\n               \"type\":\"ROUND_ROBIN\"\n            },\n            \"http\":{\n               \"connectTimeout\":5000,\n               \"idleTimeout\":60000,\n               \"keepAlive\":true,\n               \"readTimeout\":10000,\n               \"pipelining\":false,\n               \"maxConcurrentConnections\":100,\n               \"useCompression\":true,\n               \"followRedirects\":false,\n               \"encodeURI\":false\n            }\n         }\n      ]\n   },\n   \"response_templates\":{\n\n   }\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/apis/import",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"apis",
+						"import"
+					]
+				},
+				"description": "# Import Pet Store API definition\n\nThis step aims to declare a new API into the Gravitee APIM system. For simplicity we will rely on the already existing Pet Store API maintained by the Swagger team: https://petstore.swagger.io/v2\n\nBasically, this api allows to list or create pets. Currently, this api is free of access. This call will declare the Pet Store API into Gravitee APIM with the following attributes:\n* declare 'api1' user as the owner of this API,\n* define the endpoint https://petstore.swagger.io/v2,\n* restrict access to all paths with methods PUT/POST/DELETE only to user having the right \"writer\",\n* declare a Gravitee AM resource that will be used to check access-token (eg: introspect)."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Authorization Server Resource on Pet Store API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"    ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"API_ID\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							"pm.environment.set(\"API_PATH\", \"/petstore-\" + pm.variables.get(\"RANDOM_STRING\"));",
+							"pm.environment.set(\"API_NAME\", \"Swagger Petstore \" + pm.variables.get(\"RANDOM_STRING\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \n   \"name\":\"{{API_NAME}}\",\n   \"version\":\"1.0.3\",\n   \"description\":\"Swagger Petstore API\",\n   \"visibility\":\"PUBLIC\",\n   \"paths\":{\n      \"/\":[\n         {\n            \"methods\":[\n               \"DELETE\",\n               \"POST\",\n               \"PUT\"\n            ],\n            \"rbac\":{\n               \"strict\":false,\n               \"roles\":[\n                  \"{{WRITER_SCOPE}}\"\n               ]\n            },\n            \"description\":\"Restrict to writers only\",\n            \"enabled\":true\n         }\n      ]\n   },\n   \"resources\":[\n      {\n         \"configuration\":{\n            \"version\":\"V2_X\",\n            \"userClaim\":\"sub\",\n            \"serverURL\":\"{{GRAVITEEIO_AM_GATEWAY_URL}}\",\n            \"securityDomain\":\"{{SECURITY_DOMAIN_ID}}\",\n            \"clientId\":\"{{AM_GATEWAY_APIM_CLIENT_ID}}\",\n            \"clientSecret\":\"{{AM_GATEWAY_APIM_CLIENT_SECRET}}\"\n         },\n         \"enabled\":true,\n         \"name\":\"Gravitee AM\",\n         \"type\":\"oauth2-am-resource\"\n      }\n   ],\n   \"path_mappings\":[\n      \"/\"\n   ],\n   \"proxy\":{\n      \"virtual_hosts\":[\n         {\n            \"path\":\"{{API_PATH}}\"\n         }\n      ],\n      \"strip_context_path\":false,\n      \"preserve_host\":false,\n      \"groups\":[\n         {\n            \"name\":\"default-group\",\n            \"endpoints\":[\n               {\n                  \"name\":\"default\",\n                  \"target\":\"https://petstore.swagger.io/v2\",\n                  \"weight\":1,\n                  \"backup\":false,\n                  \"type\":\"HTTP\",\n                  \"http\":{\n                     \"connectTimeout\":5000,\n                     \"idleTimeout\":60000,\n                     \"keepAlive\":true,\n                     \"readTimeout\":10000,\n                     \"pipelining\":false,\n                     \"maxConcurrentConnections\":100,\n                     \"useCompression\":true,\n                     \"followRedirects\":false,\n                     \"encodeURI\":false\n                  }\n               }\n            ],\n            \"load_balancing\":{\n               \"type\":\"ROUND_ROBIN\"\n            },\n            \"http\":{\n               \"connectTimeout\":5000,\n               \"idleTimeout\":60000,\n               \"keepAlive\":true,\n               \"readTimeout\":10000,\n               \"pipelining\":false,\n               \"maxConcurrentConnections\":100,\n               \"useCompression\":true,\n               \"followRedirects\":false,\n               \"encodeURI\":false\n            }\n         }\n      ]\n   },\n   \"response_templates\":{\n\n   }\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/apis/{{API_ID}}",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"apis",
+						"{{API_ID}}"
+					]
+				},
+				"description": "# Import Pet Store API definition\n\nThis step aims to declare a new API into the Gravitee APIM system. For simplicity we will rely on the already existing Pet Store API maintained by the Swagger team: https://petstore.swagger.io/v2\n\nBasically, this api allows to list or create pets. Currently, this api is free of access. This call will declare the Pet Store API into Gravitee APIM with the following attributes:\n* declare 'api1' user as the owner of this API,\n* define the endpoint https://petstore.swagger.io/v2,\n* restrict access to all paths with methods PUT/POST/DELETE only to user having the right \"writer\",\n* declare a Gravitee AM resource that will be used to check access-token (eg: introspect)."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Freemium Plan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "deff87ee-c870-42d9-9613-427272f8799f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201,202]);",
+							"        ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"KEYLESS_PLAN_ID\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"name\":\"Freemium\",\n   \"description\":\"Free Plan\",\n   \"security\":\"key_less\",\n   \"validation\":\"auto\",\n   \"characteristics\" : [ \"Max 5 req/s\", \"Limited to 5000 req/h\", \"Read only\" ],\n   \"paths\":{\n      \"/\":[\n         {\n            \"methods\":[\n               \"GET\",\n               \"POST\",\n               \"PUT\",\n               \"DELETE\",\n               \"HEAD\",\n               \"PATCH\",\n               \"OPTIONS\",\n               \"TRACE\",\n               \"CONNECT\"\n            ],\n            \"enabled\":true,\n            \"rate-limit\":{\n               \"async\":false,\n               \"addHeaders\":true,\n               \"rate\":{\n                  \"periodTime\":1,\n                  \"periodTimeUnit\":\"SECONDS\",\n                  \"limit\":5\n               }\n            }\n         },\n         {\n            \"methods\":[\n               \"GET\",\n               \"POST\",\n               \"PUT\",\n               \"DELETE\",\n               \"HEAD\",\n               \"PATCH\",\n               \"OPTIONS\",\n               \"TRACE\",\n               \"CONNECT\"\n            ],\n            \"enabled\":true,\n            \"quota\":{\n               \"async\":false,\n               \"addHeaders\":true,\n               \"quota\":{\n                  \"periodTime\":1,\n                  \"periodTimeUnit\":\"HOURS\",\n                  \"limit\":5000\n               }\n            }\n         },\n         {\n            \"methods\":[\n               \"GET\",\n               \"POST\",\n               \"PUT\",\n               \"DELETE\",\n               \"HEAD\",\n               \"PATCH\",\n               \"OPTIONS\",\n               \"TRACE\",\n               \"CONNECT\"\n            ],\n            \"enabled\":true,\n            \"resource-filtering\":{\n               \"whitelist\":[\n                  {\n                     \"methods\":[\n                        \"GET\",\n                        \"HEAD\",\n                        \"OPTIONS\"\n                     ],\n                     \"pattern\":\"/**\"\n                  }\n               ],\n               \"blacklist\":[\n\n               ]\n            }\n         }\n      ]\n   },\n   \"excluded_groups\":[\n\n   ],\n   \"comment_required\":false\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/apis/{{API_ID}}/plans",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"apis",
+						"{{API_ID}}",
+						"plans"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publish Freemium Plan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "deff87ee-c870-42d9-9613-427272f8799f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/apis/{{API_ID}}/plans/{{KEYLESS_PLAN_ID}}/_publish",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"apis",
+						"{{API_ID}}",
+						"plans",
+						"{{KEYLESS_PLAN_ID}}",
+						"_publish"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Oauth2 Plan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "deff87ee-c870-42d9-9613-427272f8799f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201,202]);",
+							"        ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"OAUTH2_PLAN_ID\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"name\":\"OAuth2 plan\",\n   \"description\":\"Full access with Oauth2 securization\",\n   \"characteristics\":[\n      \"Oauth2 secured\",\n      \"No rate limit\",\n      \"No quota\"\n   ],\n   \"paths\":{\n      \"/\":[]\n   },\n   \"security\":\"oauth2\",\n   \"securityDefinition\":\"{\\\"extractPayload\\\":true,\\\"checkRequiredScopes\\\":false,\\\"modeStrict\\\":false,\\\"propagateAuthHeader\\\":false,\\\"requiredScopes\\\":[],\\\"oauthResource\\\":\\\"Gravitee AM\\\"}\",\n   \"excluded_groups\":[\n\n   ],\n   \"comment_required\":true\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/apis/{{API_ID}}/plans",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"apis",
+						"{{API_ID}}",
+						"plans"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publish Oauth2 Plan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "deff87ee-c870-42d9-9613-427272f8799f",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/apis/{{API_ID}}/plans/{{OAUTH2_PLAN_ID}}/_publish",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"apis",
+						"{{API_ID}}",
+						"plans",
+						"{{OAUTH2_PLAN_ID}}",
+						"_publish"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create consumer application in APIM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201]);",
+							"    ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"APIM_CONSUMER_APP_ID\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							"pm.environment.set(\"APIM_CONSUMER_APP_NAME\", \"Consumer application {{RANDOM_STRING}}\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_USER}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"name\":\"{{APIM_CONSUMER_APP_NAME}}\",\n   \"description\":\"A simple consumer application\",\n   \"settings\":{\n      \"app\":{\n         \"type\":\"Backend\",\n         \"client_id\":\"{{AM_CONSUMER_APP_CLIENT_ID}}\"\n      }\n   }\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/applications",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"applications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Subscribe to Oauth2 plan of the Pet Store API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201]);",
+							"    ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"OAUTH2_SUBSCRIPTION_ID\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_USER}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"request\": \"I want to consume this API\"\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/applications/{{APIM_CONSUMER_APP_ID}}/subscriptions?plan={{OAUTH2_PLAN_ID}}",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"applications",
+						"{{APIM_CONSUMER_APP_ID}}",
+						"subscriptions"
+					],
+					"query": [
+						{
+							"key": "plan",
+							"value": "{{OAUTH2_PLAN_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accept Oauth2 subscription",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"accepted\":true\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/apis/{{API_ID}}/subscriptions/{{OAUTH2_SUBSCRIPTION_ID}}/_process",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"apis",
+						"{{API_ID}}",
+						"subscriptions",
+						"{{OAUTH2_SUBSCRIPTION_ID}}",
+						"_process"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Pet Store API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ce48037-f680-499c-a633-9cf455c9596b",
+						"exec": [
+							"console.log(\"API is accessible through \" + pm.environment.get(\"GRAVITEEIO_GATEWAY_URL\") + pm.environment.get(\"API_PATH\"));",
+							"",
+							"pm.test(\"Successful POST request\", function () {",
+							"    ",
+							"    pm.expect(pm.response.code).to.be.oneOf([204]);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b21d1f17-41a5-47fa-9aaf-a964be64a82f",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/apis/{{API_ID}}?action=START",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"apis",
+						"{{API_ID}}"
+					],
+					"query": [
+						{
+							"key": "action",
+							"value": "START"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deploy Pet Store API",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ce48037-f680-499c-a633-9cf455c9596b",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    ",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"    ",
+							"    pm.collectionVariables.set(\"WAIT_DELAY_MILLIS\", 10000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b21d1f17-41a5-47fa-9aaf-a964be64a82f",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_MGMT_URL}}/DEFAULT/apis/{{API_ID}}/deploy",
+					"host": [
+						"{{GRAVITEEIO_MGMT_URL}}"
+					],
+					"path": [
+						"DEFAULT",
+						"apis",
+						"{{API_ID}}",
+						"deploy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get consumer application access token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"    ",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"APIM_CONSUMER_APP_ACCESS_TOKEN\", jsonData.access_token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							"var waitDelay = pm.variables.get(\"WAIT_DELAY_MILLIS\");",
+							"",
+							"if(waitDelay) {",
+							"    console.log(\"Wait \" + waitDelay + \"ms for gateways to be ready.\")",
+							"    setTimeout(function(){}, waitDelay);",
+							"    pm.collectionVariables.unset(\"WAIT_DELAY_MILLIS\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{AUTHORIZATION_API1}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_AM_GATEWAY_URL}}/{{SECURITY_DOMAIN_ID}}/oauth/token?grant_type=client_credentials&client_id={{AM_CONSUMER_APP_CLIENT_ID}}&client_secret={{AM_CONSUMER_APP_CLIENT_SECRET}}",
+					"host": [
+						"{{GRAVITEEIO_AM_GATEWAY_URL}}"
+					],
+					"path": [
+						"{{SECURITY_DOMAIN_ID}}",
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials"
+						},
+						{
+							"key": "client_id",
+							"value": "{{AM_CONSUMER_APP_CLIENT_ID}}"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{AM_CONSUMER_APP_CLIENT_SECRET}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post a new pet in Oauth2 plan mode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{APIM_CONSUMER_APP_ACCESS_TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 1,\n  \"category\": {\n    \"id\": 0,\n    \"name\": \"string\"\n  },\n  \"name\": \"doggie\",\n  \"photoUrls\": [\n    \"string\"\n  ],\n  \"tags\": [\n    {\n      \"id\": 0,\n      \"name\": \"string\"\n    }\n  ],\n  \"status\": \"available\"\n}"
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_GATEWAY_URL}}{{API_PATH}}/pet",
+					"host": [
+						"{{GRAVITEEIO_GATEWAY_URL}}{{API_PATH}}"
+					],
+					"path": [
+						"pet"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a pet in Oauth2 plan mode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{APIM_CONSUMER_APP_ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_GATEWAY_URL}}{{API_PATH}}/pet/1",
+					"host": [
+						"{{GRAVITEEIO_GATEWAY_URL}}{{API_PATH}}"
+					],
+					"path": [
+						"pet",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post a new pet in free plan mode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Expected 403 (Forbiden)\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([403]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_GATEWAY_URL}}{{API_PATH}}/pet",
+					"host": [
+						"{{GRAVITEEIO_GATEWAY_URL}}{{API_PATH}}"
+					],
+					"path": [
+						"pet"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a pet in free plan mode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ad43eb51-dd8f-42d4-8253-f6db8f655226",
+						"exec": [
+							"pm.test(\"Successful GET request or 404 Not found\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "c949ae70-e7c0-41b0-af3e-1ca131bfc2df",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{GRAVITEEIO_GATEWAY_URL}}{{API_PATH}}/pet/1",
+					"host": [
+						"{{GRAVITEEIO_GATEWAY_URL}}{{API_PATH}}"
+					],
+					"path": [
+						"pet",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "e51782b2-e684-4099-96cd-5ef0335def8a",
+				"type": "text/javascript",
+				"exec": [
+					"var randomStringGlobal=pm.globals.get(\"RANDOM_STRING\");",
+					"var randomStringVar=pm.variables.get(\"RANDOM_STRING\");",
+					"",
+					"if(randomStringGlobal) {",
+					"    pm.environment.set(\"RANDOM_STRING\", randomStringGlobal);",
+					"} else if(!randomStringVar) {",
+					"    var random=Math.random().toString(36).substring(2, 7);",
+					"    pm.environment.set(\"RANDOM_STRING\", random);",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "a334a1bb-d77c-4636-a0f4-79fb5d134f9a",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "8d147757-04d6-4bdc-b9e8-3c45b0bb2772",
+			"key": "ADMIN_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "47065067-5d94-48b1-b94b-24d3e443e3e1",
+			"key": "SECURITY_DOMAIN_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "a907553b-8987-4346-b8fc-1d3e35001100",
+			"key": "AM_ADMIN_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "d5555a69-df28-4cb0-b5e6-bf947b56f754",
+			"key": "GATEWAY_APIM_CLIENT_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "427e7ce5-9f69-4c26-b6f3-2be1d9d54f2c",
+			"key": "GATEWAY_APIM_CLIENT_SECRET",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "b0a5b869-78dd-4e40-8fa0-451777879813",
+			"key": "API",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "778349f0-5a4c-4771-ba67-b31b6d0e2668",
+			"key": "API_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "dc391db7-3bbe-4ffb-9fa1-1734a2148522",
+			"key": "PLAN_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "e207d8fe-dd80-4fed-a117-99dff156ab42",
+			"key": "API_PATH",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "95778f23-6744-4df7-87bf-51e056b27d2b",
+			"key": "API_NAME",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "10643aa8-bf4e-47f3-93de-06c79f22ec35",
+			"key": "RANDOM_STRING",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "64d5b7f1-7bd7-45cf-8ae4-a7fb23445fc8",
+			"key": "OAUTH2_PLAN_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "0f384f03-0992-41ad-853d-c061dcc47fa9",
+			"key": "CONSUMER_APP_CLIENT_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "665ecb78-7db2-4f6f-ad61-1dec247b42ba",
+			"key": "CONSUMER_APP_CLIENT_SECRET",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "dda0379c-4591-439e-939d-6f199bbfedbd",
+			"key": "APPLICATION_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "6cfc218d-4472-4243-8c14-1eaabe469528",
+			"key": "OAUTH2_SUBSCRIPTION_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "027cc1f3-ab67-49b2-9f35-49aad10b07bc",
+			"key": "WRITER_SCOPE",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "fb8c1eb5-ae31-4b2b-9849-8724a6cc9ee8",
+			"key": "GATEWAY_APIM_APPLICATION_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "c5d94afe-26d4-4bcc-aeb4-8b817b7314c5",
+			"key": "CONSUMER_APP_APPLICATION_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "2808d9f1-167c-4263-bf3e-e599d75c777b",
+			"key": "KEYLESS_PLAN_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "4d173c7d-5450-412c-acc6-c0b56ae3ceae",
+			"key": "AM_CONSUMER_APP_APPLICATION_NAME",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "87fcf2af-6400-4bcb-926f-b3d662ea2e40",
+			"key": "AM_CONSUMER_APP_APPLICATION_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "1dda7a66-1c60-4b90-8c41-db582932dac2",
+			"key": "AM_CONSUMER_APP_CLIENT_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "70e8659d-c53b-4a5e-948e-ac44fdc2b5c0",
+			"key": "AM_CONSUMER_APP_CLIENT_SECRET",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "3cd9881e-ed8d-46c2-b119-4a1b9efedf78",
+			"key": "AM_GATEWAY_APIM_APPLICATION_NAME",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "9dd97f52-d8ad-4dcb-9c73-25b5fcd731a3",
+			"key": "APIM_CONSUMER_APP_NAME",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "0addf964-4fed-4524-8010-3a318ce66140",
+			"key": "APIM_CONSUMER_APP_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "aee640a9-72bd-45a7-9713-a70e61bd1f28",
+			"key": "SECURITY_DOMAIN_NAME",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "06154db9-b6ce-4b0a-b59f-ce8a915f390f",
+			"key": "AM_GATEWAY_APIM_APPLICATION_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "45c9cadb-3d26-40bb-887f-58e614df73dc",
+			"key": "AM_GATEWAY_APIM_CLIENT_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "ddc4aa24-2282-4290-9962-d3905ad844e0",
+			"key": "AM_GATEWAY_APIM_CLIENT_SECRET",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "21d0192b-7410-4089-92bc-2cd3327fba94",
+			"key": "SECURITY_DOMAIN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "1bfb59ef-3077-4e1f-aa49-8e237709866b",
+			"key": "APIM_CONSUMER_APP_ACCESS_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "b1e9315e-7097-49c0-b9d1-f46e7200830d",
+			"key": "WAIT_DELAY_MILLIS",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

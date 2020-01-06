@@ -1,0 +1,64 @@
+{
+  "id": "72b7fe6b-4170-4435-aa09-3e3ca4d92ebe",
+  "name": "Gravitee.io Localhost Environment",
+  "values": [
+    {
+      "key": "GRAVITEEIO_MGMT_URL",
+      "value": "http://localhost:8083",
+      "enabled": true
+    },
+    {
+      "key": "GRAVITEEIO_PORTAL_URL",
+      "value": "http://localhost:8084",
+      "enabled": true
+    },
+    {
+      "key": "AUTHORIZATION_APPLICATION1",
+      "value": "Basic YXBwbGljYXRpb24xOmFwcGxpY2F0aW9uMQ==",
+      "enabled": true
+    },
+    {
+      "key": "AUTHORIZATION_API1",
+      "value": "Basic YXBpMTphcGkx",
+      "enabled": true
+    },
+    {
+      "key": "AUTHORIZATION_ADMIN",
+      "value": "Basic YWRtaW46YWRtaW4=",
+      "enabled": true
+    },
+    {
+      "key": "AUTHORIZATION_USER",
+      "value": "Basic dXNlcjpwYXNzd29yZA==",
+      "enabled": true
+    },
+    {
+      "key": "AM_AUTHORIZATION_ADMIN",
+      "value": "Basic YWRtaW46YWRtaW5hZG1pbg==",
+      "enabled": true
+    },
+    {
+      "key": "GRAVITEEIO_GATEWAY_URL",
+      "value": "http://localhost:8082",
+      "enabled": true
+    },
+    {
+      "key": "GRAVITEEIO_AM_GATEWAY_URL",
+      "value": "http://localhost:8092",
+      "enabled": true
+    },
+    {
+      "key": "GRAVITEEIO_AM_MANAGEMENT_URL",
+      "value": "http://localhost:8093",
+      "enabled": true
+    },
+    {
+      "key": "GRAVITEEIO_AM_ADMIN_URL",
+      "value": "http://localhost:4200",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2019-12-19T16:41:51.802Z",
+  "_postman_exported_using": "Postman/7.13.0"
+}
