@@ -1,76 +1,17 @@
-= Gravitee.io Blog Resources
+image:img/logo.jpg[]
 
-ifdef::env-github[]
-image:https://f.hubspotusercontent40.net/hubfs/7600448/gravitee-github-button.jpg["Join the community forum", link="https://community.gravitee.io?utm_source=readme", height=20]
-endif::[]
+= Gravitee Examples
 
-Gravitee resource files used in various blogs.
+This repository keeps everything from code snippets supporting blog posts to full working examples.
 
-This repository contains also some Postman collections that can be executed to demonstrate some features of the Gravitee solution.
+:toc:
+:toc-title: Inventory
+:toclevels: 2
 
-*DISCLAIMER: postman collections only works with the nightly version of the Gravitee platform which is not stable yet !*
+=== Troubleshoot your APIs with the Gravitee APIM Debug Mode!
 
-== Requirement
+* Author: Yann Tavernier
+* https://medium.com/gravitee-io/troubleshoot-your-apis-with-the-gravitee-apim-debug-mode-f9c8b9f8f9f9[Blog post^]
+* https://github.com/gravitee-io/examples/troubleshoot-your-APIs[Code snippets^]
 
-=== Docker
 
-You must have
-  http://docs.docker.com/installation/[Docker] and
-  http://docs.docker.com/compose/install/[Docker Compose]
-installed on your machine:
-
-```bash
-$ docker --version
-$ docker-compose --version
-```
-
-=== Newman
-
-You'll also need to install `newman` command.
-
-Using NPM:
-
-```bash
-$ npm install -g newman
-```
-
-Using Homebrew:
-
-```bash
-$ brew install newman
-```
-
-=== Gravitee's hosts
-
-By default, API Management is exposed on https://apim.gravitee.io and Access Management is exposed on https://am.gravitee.io
-Add these domains to your own /etc/hosts file:
-
-```bash
-$ sudo vi /etc/hosts
-127.0.0.1       localhost apim.gravitee.io am.gravitee.io
-```
-
-== The postman collection
-
-Multiple postman collections are available:
-
- - `5-minutes-to-secure-an-API-with-gravitee-stack`: declares the Swagger Pet Store API on Gravitee APIM with a restricted keyless plan and an unlocked Oauth2 plan.
- - To be continued...
-
-== Launch a case
-
-First, you need to start the Gravitee stack by typing this command:
-
-```bash
-curl -L http://bit.ly/graviteeio-platform | bash -s -- --nightly
-```
-
-Clone this repo and run the following command:
-
-```bash
-$ newman run -k \
-    -e postman-env/Gravitee.io-Local-Docker-Compose-Environment.json \
-    5-minutes-to-secure-an-API-with-gravitee-stack/postman_collection.json
-```
-
-Next, have a look at the APIM and AM portals to get more details.
