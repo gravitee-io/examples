@@ -10,6 +10,6 @@ This repository keeps everything from code snippets supporting blog posts to ful
 
 * Author: Yann Tavernier
 * https://medium.com/gravitee-io/troubleshoot-your-apis-with-the-gravitee-apim-debug-mode-f9c8b9f8f9f9[Blog post^]
-* https://github.com/gravitee-io/examples/troubleshoot-your-APIs[Code snippets^]
+* https://github.com/gravitee-io/examples/tree/main/troubleshoot-your-APIs[Code snippets^]
 
 
