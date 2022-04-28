@@ -1,5 +1,3 @@
-image:img/logo.jpg[]
-
 = Gravitee Examples
 
 This repository keeps everything from code snippets supporting blog posts to full working examples.
