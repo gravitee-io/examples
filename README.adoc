@@ -6,7 +6,7 @@ This repository keeps everything from code snippets supporting blog posts to ful
 :toc-title: Inventory
 :toclevels: 2
 
-=== Troubleshoot your APIs with the Gravitee APIM Debug Mode!
+== Troubleshoot your APIs with the Gravitee APIM Debug Mode!
 
 * Author: Yann Tavernier
 * https://medium.com/gravitee-io/troubleshoot-your-apis-with-the-gravitee-apim-debug-mode-f9c8b9f8f9f9[Blog post^]
